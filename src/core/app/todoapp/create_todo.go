@@ -4,6 +4,7 @@ import (
 	"github.com/revenue-hack/ddd-todo-sample/src/core/domain/tododm"
 	"github.com/revenue-hack/ddd-todo-sample/src/core/domain/userdm"
 	"github.com/revenue-hack/ddd-todo-sample/src/core/domain/vo"
+	"golang.org/x/xerrors"
 )
 
 type CreateTodoApp struct {
@@ -38,6 +39,18 @@ func (app *CreateTodoApp) Exec(req *CreateTodoRequest) (*CreateTodoResponse, err
 	if err != nil {
 		return nil, err
 	}
+
+        userDomainService := userdm.NewUserDomainService(app.userRepository)
+        if !userDomainService.IsExists(asigneeID) {
+                return nil, xerrors.Errorf("user don't exist: %s", asigneeID.String())
+        }
+
+        user, err := app.userRepository.FindByID(asigneeID)
+	if err != nil || user == nil {
+		return nil, err
+	}
+
+
 	url, err := vo.NewURL(req.ReferenceURL)
 	if err != nil {
 		return nil, err

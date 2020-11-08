@@ -49,6 +49,8 @@ func (app *UpdateTodoApp) Exec(req *UpdateTodoRequest) error {
 		return err
 	}
 
+	// user domain serviceでユーザ存在を確認
+
 	todoDomainService := tododm.NewTodoDomainService(app.todoRepository)
 	if status.IsConfirm() && !todoDomainService.CanConfirmTodoByUserID(asigneeID) {
 		return xerrors.Errorf("user can't belongs to this todo: %v", asigneeID)
@@ -65,6 +67,7 @@ func (app *UpdateTodoApp) Exec(req *UpdateTodoRequest) error {
 	if err := todo.ChangeContents(req.Contents); err != nil {
 		return err
 	}
+
 	if err := todo.ChangeTitle(req.Title); err != nil {
 		return err
 	}

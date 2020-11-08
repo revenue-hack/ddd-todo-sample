@@ -21,23 +21,28 @@ type CreateUserRequest struct {
 	Password string
 }
 
-func (app *CreateUserApp) Exec(req *CreateUserRequest) error {
+type CreateUserResponse struct {
+	ID string
+}
+
+func (app *CreateUserApp) Exec(req *CreateUserRequest) (*CreateUserResponse, error) {
 	email, err := vo.NewEmail(req.Email)
 	if err != nil {
-		return err
+		return nil, err
 	}
 	password, err := vo.NewPassword(req.Password)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	user, err := userdm.NewUser(userdm.NewUserID(), req.UserName, email, password)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
-	if _, err := app.userRepository.Create(user); err != nil {
-		return err
+	createdUser, err := app.userRepository.Create(user)
+	if err != nil {
+		return nil, err
 	}
-	return nil
+	return &CreateUserResponse{ID: createdUser.ID().String()}, nil
 }
